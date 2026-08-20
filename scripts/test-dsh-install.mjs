@@ -54,6 +54,12 @@ function dshCommand() {
   if (source !== undefined && source !== '') {
     return { executable: process.execPath, prefix: [join(resolve(source), 'apps', 'cli', 'lib', 'bin.js')] }
   }
+  const installedCli = process.env.DSH_CLI_PATH
+  if (installedCli !== undefined && installedCli !== '') {
+    const entry = resolve(installedCli)
+    if (!existsSync(entry)) throw new Error(`DSH_CLI_PATH does not exist: ${entry}`)
+    return { executable: process.execPath, prefix: [entry] }
+  }
   return process.platform === 'win32'
     ? { executable: process.execPath, prefix: [resolveNpmCli(), 'exec', '--yes', '--package=@deepseek-ai/dsh@0.1.0-rc.8', '--', 'dsh'] }
     : { executable: process.execPath, prefix: [resolveNpmCli(), 'exec', '--yes', '--package=@deepseek-ai/dsh@0.1.0-rc.8', '--', 'dsh'] }

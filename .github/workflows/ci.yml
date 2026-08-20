@@ -46,11 +46,15 @@ jobs:
           node-version: 22.19.0
           cache: pnpm
       - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Install the exact Harness test runtime
+        run: pnpm --dir runtime install --prod --frozen-lockfile
       - run: pnpm run build
       - name: Pack plugin
         run: pnpm pack --pack-destination "$RUNNER_TEMP"
       - name: Install bundle into an isolated Harness profile
-        timeout-minutes: 15
+        timeout-minutes: 10
+        env:
+          DSH_CLI_PATH: ${{ github.workspace }}/runtime/node_modules/@deepseek-ai/dsh/lib/bin.js
         run: |
           package=$(find "$RUNNER_TEMP" -maxdepth 1 -name 'artificialnotimbecile-dsh-remote-runtime-*.tgz' -print -quit)
           test -n "$package"
