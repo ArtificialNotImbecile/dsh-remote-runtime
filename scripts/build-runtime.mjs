@@ -58,8 +58,9 @@ package_json="$3"
 dependency_lock="$4"
 workspace_config="$5"
 finalizer="$6"
-artifact="$7"
-metadata="$8"
+compressor="$7"
+artifact="$8"
+metadata="$9"
 artifact_temporary="${'${artifact}'}.build-$$"
 work="$(mktemp -d "${'${TMPDIR:-/tmp}'}/dsh-remote-runtime.XXXXXX")"
 cleanup() { rm -rf -- "$work"; rm -f -- "$artifact_temporary"; }
@@ -75,8 +76,11 @@ mv "$builder_dir" "$work/builder"
 cp "$package_json" "$work/stage/app/package.json"
 cp "$dependency_lock" "$work/stage/app/pnpm-lock.yaml"
 cp "$workspace_config" "$work/stage/app/pnpm-workspace.yaml"
+chmod 644 "$work/stage/app/package.json" "$work/stage/app/pnpm-lock.yaml" "$work/stage/app/pnpm-workspace.yaml"
 PATH="$work/builder/bin:$PATH"
 export PATH
+LC_ALL=C
+export LC_ALL
 COREPACK_HOME="$work/corepack"
 export COREPACK_HOME
 "$work/builder/bin/corepack" pnpm@11.7.0 --dir "$work/stage/app" install \\
@@ -110,17 +114,17 @@ find "$work/stage" -depth -type d -empty -delete
 tar_file="$work/runtime.tar"
 tar --format=ustar --sort=name --mtime='UTC 1970-01-01' --owner=0 --group=0 --numeric-owner \\
   -cf "$tar_file" -C "$work/stage" manifest.json node app bin
-gzip -n -c "$tar_file" > "$artifact_temporary"
+"$work/builder/bin/node" "$compressor" "$tar_file" "$artifact_temporary"
 mv -f -- "$artifact_temporary" "$artifact"
 `
 await writeFile(shellScript, script, { mode: 0o700 })
 try {
   if (process.platform === 'linux') {
     run('sh', [shellScript, nodeArchive, builderNodeArchive, join(root, 'runtime', 'package.json'), lockPath, workspacePath,
-      join(root, 'scripts', 'finalize-runtime.mjs'), artifact, metadata])
+      join(root, 'scripts', 'finalize-runtime.mjs'), join(root, 'scripts', 'compress-runtime.mjs'), artifact, metadata])
   } else if (process.platform === 'win32') {
     const paths = [shellScript, nodeArchive, builderNodeArchive, join(root, 'runtime', 'package.json'), lockPath, workspacePath,
-      join(root, 'scripts', 'finalize-runtime.mjs'), artifact]
+      join(root, 'scripts', 'finalize-runtime.mjs'), join(root, 'scripts', 'compress-runtime.mjs'), artifact]
     const converted = paths.map(toWslPath)
     run('wsl.exe', ['--exec', 'env',
       'HOME=/tmp',

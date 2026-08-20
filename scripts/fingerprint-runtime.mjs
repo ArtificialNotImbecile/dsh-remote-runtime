@@ -122,12 +122,18 @@ function tarHeaderCollector() {
         Buffer.from(left.path, 'utf8'),
         Buffer.from(right.path, 'utf8'),
       ))
+      const executableFiles = members
+        .filter(member => member.type === '0' && (Number.parseInt(member.mode, 8) & 0o111) !== 0)
+        .map(member => member.path)
       return {
         members: members.length,
+        orderedPathsSha256: sha256Json(members.map(member => member.path)),
+        canonicalPathsSha256: sha256Json(canonical.map(member => member.path)),
         orderedMembersSha256: sha256Json(members),
         canonicalMembersSha256: sha256Json(canonical),
         modes: histogram(members.map(member => member.mode)),
         types: histogram(members.map(member => member.type)),
+        executableFiles,
       }
     },
   }
