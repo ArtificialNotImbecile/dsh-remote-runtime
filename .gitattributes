@@ -8,5 +8,6 @@
 *.yaml text eol=lf
 *.yml text eol=lf
 *.png binary
+*.gif binary
 *.tgz binary
 *.tar.gz binary

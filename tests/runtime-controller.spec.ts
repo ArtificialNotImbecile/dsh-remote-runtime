@@ -30,6 +30,7 @@ describe('remote runtime controller', () => {
     expect(artifacts.describe).toHaveBeenCalledTimes(1)
     expect(artifacts.resolve).not.toHaveBeenCalled()
     expect(ssh.uploads).toHaveLength(0)
+    expect(ssh.commands.every(call => !/[\0\r\n]/u.test(call.command))).toBe(true)
   })
 
   it.each([
@@ -217,7 +218,7 @@ describe('remote runtime controller', () => {
       return Response.json({
         type: 'server-response', rpcId: body.rpcId,
         result: { ok: true, value: {
-          version: '0.1.0-rc.8', cwd: '/work', attachedSessions: 0, home: '/home/test', canOpenPath: false,
+          version: '0.0.1', cwd: '/work', attachedSessions: 0, home: '/home/test', canOpenPath: false,
         } },
       })
     })
@@ -231,6 +232,8 @@ describe('remote runtime controller', () => {
     expect(launch).toContain("NO_PROXY='direct.example.test'")
     expect(launch).toContain("no_proxy='direct.example.test'")
     expect(launch).toContain('unset ALL_PROXY all_proxy')
+    expect(launch).toContain('& pid=$!;')
+    expect(launch).not.toContain('&;')
     expect(launch).not.toContain('super-secret-token')
     expect(JSON.stringify(connected)).not.toContain('super-secret-token')
     expect(ssh.uploads.find(upload => upload.path.endsWith('/proxy-url'))?.data).toContain('super-secret-token')
@@ -314,7 +317,7 @@ class FakeSsh implements RuntimeSshPort {
     if (command === 'sh -s' && typeof input === 'string' && input.includes('DSH_REMOTE_TOOLS/1')) {
       return result(0, 'DSH_REMOTE_TOOLS/1|yes|yes|yes|yes|yes|yes\n')
     }
-    if (command.includes('printf "%s\n%s\n%s\n"')) {
+    if (command.includes('printf "%s\\n%s\\n%s\\n"')) {
       return result(0, `${this.layoutRoot}\n${this.layoutRoot}/profiles/${profile.id}\n/home/test\n`)
     }
     if (command.includes('while ! test -e')) return result(0)
@@ -481,7 +484,7 @@ function apiDescriptionFetch(): typeof fetch {
     return Response.json({
       type: 'server-response', rpcId: body.rpcId,
       result: { ok: true, value: {
-        version: '0.1.0-rc.8', cwd: '/work', attachedSessions: 0, home: '/home/test', canOpenPath: false,
+        version: '0.0.1', cwd: '/work', attachedSessions: 0, home: '/home/test', canOpenPath: false,
       } },
     })
   }) as typeof fetch

@@ -54,6 +54,7 @@
     "runtime/package.json",
     "runtime/pnpm-lock.yaml",
     "runtime/pnpm-workspace.yaml",
+    "docs/assets/readme/*",
     "scripts/*.mjs",
     "cordis.patch.yml",
     "README.md",

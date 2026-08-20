@@ -6,6 +6,40 @@ English | [简体中文](README.zh-CN.md)
 
 The browser never runs SSH, reads files, starts processes, or receives stored secrets. Those operations remain in the plugin's Host half and cross the existing DSH Typert Remote boundary as bounded JSON summaries.
 
+## Product tour
+
+This demo was captured from a real OpenSSH-managed runtime using an actual DeepSeek API credential. The key was imported before recording and never entered the browser, screenshot, GIF, log, or repository. The visible host and workspace are isolated demo values.
+
+<p align="center">
+  <img src="docs/assets/readme/remote-runtime-demo.gif" alt="DSH Remote Runtime connected profile, Doctor, credential status, workspaces, real Session transcript, and remote DeepSeek Harness UI" width="960">
+</p>
+
+The recorded flow is real: connect → verify the pinned runtime → open the SSH tunnel → create a remote Session → receive a DeepSeek model response → read the same official Session history from the plugin.
+
+<details>
+<summary><strong>See every screen</strong></summary>
+
+<table>
+  <tr>
+    <td><img src="docs/assets/readme/connected-profile.png" alt="Connected remote runtime profile"><br><sub>Connected profile and verified runtime</sub></td>
+    <td><img src="docs/assets/readme/doctor-install.png" alt="Doctor checks passing"><br><sub>Read-only Doctor checks</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/assets/readme/credential-configured.png" alt="Configured write-only DeepSeek credential"><br><sub>Write-only credential status; the key is never read back</sub></td>
+    <td><img src="docs/assets/readme/workspaces.png" alt="Saved and remote Harness workspaces"><br><sub>Saved paths and official remote Harness workspaces</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/assets/readme/sessions-real-deepseek.png" alt="Real DeepSeek Session transcript in the plugin"><br><sub>Real DeepSeek reply projected through the official Session API</sub></td>
+    <td><img src="docs/assets/readme/remote-ui-real-deepseek.png" alt="Remote DeepSeek Harness UI through the loopback tunnel"><br><sub>The complete remote DSH UI through the loopback SSH tunnel</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/assets/readme/profile-wizard-host.png" alt="Remote profile Host wizard"><br><sub>Profile, OpenSSH host, workspace, and isolated runtime root</sub></td>
+    <td><img src="docs/assets/readme/profile-wizard-egress.png" alt="Remote profile egress wizard"><br><sub>Immutable remote-direct or authenticated client-proxy boundary</sub></td>
+  </tr>
+</table>
+
+</details>
+
 ## Why another remote plugin?
 
 The unscoped [`dsh-remote`](https://github.com/flymysql/dsh-remote) package is an established SSH/SFTP workspace assistant: a local Harness operates on remote files and mirrors them into a local workspace. This project solves a different problem.

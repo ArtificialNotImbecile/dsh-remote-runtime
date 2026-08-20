@@ -6,6 +6,40 @@
 
 浏览器不会执行 SSH、读取文件或启动进程，也不会读回已保存密钥。这些能力全部留在插件 Host 侧，只通过 DSH 现有 Typert Remote 边界向界面返回有界、JSON 安全的摘要。
 
+## 界面与真实流程
+
+下面的成品展示来自真实 OpenSSH 托管运行时，并使用了真实 DeepSeek API 凭据。Key 在录制前由 Host 侧导入，从未进入浏览器、截图、GIF、日志或仓库；画面中的 host 与 workspace 均为隔离的演示值。
+
+<p align="center">
+  <img src="docs/assets/readme/remote-runtime-demo.gif" alt="DSH Remote Runtime 已连接配置、Doctor、凭据状态、工作区、真实 Session 记录及远端 DeepSeek Harness 界面" width="960">
+</p>
+
+GIF 中的链路是真实的：连接 → 校验固定运行时 → 打开 SSH 隧道 → 创建远端 Session → 获得 DeepSeek 模型回复 → 在插件中读取同一份官方 Session 历史。
+
+<details>
+<summary><strong>查看全部页面</strong></summary>
+
+<table>
+  <tr>
+    <td><img src="docs/assets/readme/connected-profile.png" alt="已连接的远端运行时配置"><br><sub>已连接配置与通过校验的运行时</sub></td>
+    <td><img src="docs/assets/readme/doctor-install.png" alt="全部通过的 Doctor 检查"><br><sub>只读 Doctor 检查</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/assets/readme/credential-configured.png" alt="已配置的只写 DeepSeek 凭据"><br><sub>只写凭据状态；Key 永不读回</sub></td>
+    <td><img src="docs/assets/readme/workspaces.png" alt="已保存与远端 Harness 工作区"><br><sub>已保存路径和官方远端 Harness workspace</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/assets/readme/sessions-real-deepseek.png" alt="插件中的真实 DeepSeek Session 记录"><br><sub>经官方 Session API 投影的真实 DeepSeek 回复</sub></td>
+    <td><img src="docs/assets/readme/remote-ui-real-deepseek.png" alt="经 loopback 隧道访问的远端 DeepSeek Harness"><br><sub>通过 loopback SSH 隧道打开完整远端 DSH UI</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/assets/readme/profile-wizard-host.png" alt="远端配置 Host 向导"><br><sub>配置、OpenSSH host、workspace 与隔离运行时根目录</sub></td>
+    <td><img src="docs/assets/readme/profile-wizard-egress.png" alt="远端配置出网向导"><br><sub>创建后不可修改的 remote-direct 或认证 client-proxy 边界</sub></td>
+  </tr>
+</table>
+
+</details>
+
 ## 与现有远程插件的区别
 
 未加 scope 的 [`dsh-remote`](https://github.com/flymysql/dsh-remote) 已经是一款成熟的 SSH/SFTP 工作区插件：本地 Harness 操作远端文件，并把远端目录镜像成本地 workspace。本项目解决的是另一类问题。

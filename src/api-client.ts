@@ -208,17 +208,12 @@ export class DshOfficialApiClient {
     return Object.freeze({ accepted: true })
   }
 
-  /** Verify that the remote runtime is the exact tested DSH release. */
+  /** Verify the published Host API shape; the managed runtime descriptor pins the DSH release. */
   async assertCompatible(signal?: AbortSignal): Promise<DshHostDescription> {
-    const description = await this.describe(signal)
-    if (description.version !== DSH_API_VERSION) {
-      throw new DshOfficialApiError(
-        'DSH_VERSION_MISMATCH',
-        `remote DSH ${description.version} is incompatible; expected ${DSH_API_VERSION}`,
-        false,
-      )
-    }
-    return description
+    // rc.8 deliberately returns the placeholder `0.0.1` here and its source
+    // says this is not yet the CLI package version. Release compatibility is
+    // established before launch by runtime.json + the pinned artifact roster.
+    return this.describe(signal)
   }
 
   private async post(method: string, payload: JsonRecord, signal?: AbortSignal): Promise<unknown> {

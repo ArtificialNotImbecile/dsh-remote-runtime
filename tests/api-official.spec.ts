@@ -97,10 +97,10 @@ describe('official DSH API client', () => {
     await expect(client.listSessions()).rejects.toMatchObject({ code: 'RESPONSE_TOO_LARGE' })
   })
 
-  it('validates the exact remote version and prompt receipt semantics', async () => {
+  it('treats the rc.8 host version as a placeholder and validates prompt receipt semantics', async () => {
     const values = new Map<string, unknown>([
       ['host.describe', {
-        version: '0.1.0-rc.8', cwd: '/work', provider: 'deepseek-official', model: 'deepseek-v4-flash',
+        version: '0.0.1', cwd: '/work', provider: 'deepseek-official', model: 'deepseek-v4-flash',
         attachedSessions: 1, home: '/home/test', canOpenPath: false,
       }],
       ['session.prompt', { accepted: true }],
@@ -113,7 +113,7 @@ describe('official DSH API client', () => {
       return Response.json({ type: 'server-response', rpcId: body.rpcId, result: { ok: true, value: values.get(body.method) } })
     })
     const client = new DshOfficialApiClient({ baseUrl: 'http://127.0.0.1:10002', fetch })
-    await expect(client.assertCompatible()).resolves.toMatchObject({ version: '0.1.0-rc.8' })
+    await expect(client.assertCompatible()).resolves.toMatchObject({ version: '0.0.1' })
     await expect(client.prompt('s1', 'go', 'steer')).resolves.toEqual({ accepted: true })
   })
 })

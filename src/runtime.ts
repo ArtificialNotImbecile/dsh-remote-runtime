@@ -691,7 +691,7 @@ export class RemoteRuntimeController {
       'set -eu',
       `remote_root=${remoteRootShellExpression(profile)}`,
       `profile_root=${profileRootShellExpression(profile)}`,
-      'printf "%s\n%s\n%s\n" "$remote_root" "$profile_root" "$HOME"',
+      'printf "%s\\n%s\\n%s\\n" "$remote_root" "$profile_root" "$HOME"',
     ].join('; ')
     const result = await this.runChecked(profile, command, undefined, signal, 16 * 1024)
     const lines = result.stdout.replace(/\r\n/gu, '\n').trimEnd().split('\n')
@@ -930,8 +930,7 @@ export class RemoteRuntimeController {
           ]
         : []),
       `cd -- ${shellQuote(cwd)}`,
-      `nohup env ${environment.join(' ')} ${shellQuote(launcher)} web --no-open --port ${String(remotePort)} </dev/null >${shellQuote(logPath)} 2>&1 &`,
-      'pid=$!',
+      `nohup env ${environment.join(' ')} ${shellQuote(launcher)} web --no-open --port ${String(remotePort)} </dev/null >${shellQuote(logPath)} 2>&1 & pid=$!`,
       `temporary=${shellQuote(`${statePath}.tmp-${randomUUID()}`)}`,
       `printf 'version=${String(CONTROL_PROTOCOL)}\\npid=%s\\nport=%s\\ntoken=%s\\n' "$pid" ${String(remotePort)} "$DSH_REMOTE_RUN_TOKEN" > "$temporary"`,
       'chmod 600 "$temporary"', `mv -f -- "$temporary" ${shellQuote(statePath)}`,

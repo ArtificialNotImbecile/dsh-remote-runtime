@@ -1,5 +1,5 @@
 /** Static publication gate that does not recurse into npm pack lifecycle hooks. */
-import { access, readFile, readdir } from 'node:fs/promises'
+import { access, readFile, readdir, stat } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -13,6 +13,19 @@ if (manifest.version !== '0.1.0') throw new Error('unexpected initial version')
 if (manifest.dsh?.bundle?.patch !== './cordis.patch.yml') throw new Error('missing DSH bundle patch')
 if (manifest.dsh?.client?.platform !== 'web') throw new Error('missing DSH Web client declaration')
 if (!manifest.files.includes('scripts/*.mjs')) throw new Error('published package scripts are missing from files')
+if (!manifest.files.includes('docs/assets/readme/*')) throw new Error('README product assets are missing from files')
+
+const readmeAssets = [
+  'connected-profile.png',
+  'credential-configured.png',
+  'doctor-install.png',
+  'profile-wizard-egress.png',
+  'profile-wizard-host.png',
+  'remote-runtime-demo.gif',
+  'remote-ui-real-deepseek.png',
+  'sessions-real-deepseek.png',
+  'workspaces.png',
+]
 
 const pinned = Object.entries({ ...manifest.peerDependencies, ...manifest.devDependencies })
   .filter(([name]) => name.startsWith('@deepseek-ai/dsh-'))
@@ -32,9 +45,18 @@ for (const file of [
   'runtime/pnpm-workspace.yaml',
   'scripts/test-dsh-install.mjs',
   'scripts/test-live.mjs',
+  ...readmeAssets.map(file => `docs/assets/readme/${file}`),
   'LICENSE',
 ]) {
   await access(join(root, file))
+}
+
+for (const file of readmeAssets) {
+  const info = await stat(join(root, 'docs', 'assets', 'readme', file))
+  const maximum = file.endsWith('.gif') ? 8 * 1024 * 1024 : 500 * 1024
+  if (!info.isFile() || info.size < 1 || info.size > maximum) {
+    throw new Error(`README asset is missing or too large: ${file}`)
+  }
 }
 
 const hostChunks = (await readdir(join(root, 'lib'))).filter(file => /^service-[A-Za-z0-9_-]+\.js$/u.test(file))
