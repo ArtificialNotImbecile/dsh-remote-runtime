@@ -151,6 +151,11 @@ describe('profile store', () => {
 
   test('uses a Windows roaming path by default without mutating environment', () => {
     expect(defaultProfilesPath({ APPDATA: 'C:\\Users\\test\\AppData\\Roaming' }, 'win32'))
-      .toBe(path.resolve('C:\\Users\\test\\AppData\\Roaming', 'dsh-remote-runtime', 'profiles.json'))
+      .toBe(path.win32.join('C:\\Users\\test\\AppData\\Roaming', 'dsh-remote-runtime', 'profiles.json'))
+  })
+
+  test('uses POSIX path semantics when the requested platform is Linux', () => {
+    expect(defaultProfilesPath({ XDG_CONFIG_HOME: '/srv/config' }, 'linux'))
+      .toBe('/srv/config/dsh-remote-runtime/profiles.json')
   })
 })

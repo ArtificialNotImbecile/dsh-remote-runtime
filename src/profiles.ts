@@ -33,16 +33,17 @@ export function defaultProfilesPath(
   env: NodeJS.ProcessEnv = process.env,
   platform: NodeJS.Platform = process.platform,
 ): string {
+  const pathApi = platform === 'win32' ? path.win32 : path.posix
   const override = env.DSH_REMOTE_RUNTIME_CONFIG_PATH || env.DSH_REMOTE_CONFIG_PATH
-  if (override) return path.resolve(override)
+  if (override) return pathApi.resolve(override)
   if (platform === 'win32') {
-    const appData = env.APPDATA || path.join(env.USERPROFILE || os.homedir(), 'AppData', 'Roaming')
-    return path.join(appData, 'dsh-remote-runtime', 'profiles.json')
+    const appData = env.APPDATA || pathApi.join(env.USERPROFILE || os.homedir(), 'AppData', 'Roaming')
+    return pathApi.join(appData, 'dsh-remote-runtime', 'profiles.json')
   }
   if (platform === 'darwin') {
-    return path.join(os.homedir(), 'Library', 'Application Support', 'dsh-remote-runtime', 'profiles.json')
+    return pathApi.join(os.homedir(), 'Library', 'Application Support', 'dsh-remote-runtime', 'profiles.json')
   }
-  return path.join(env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config'), 'dsh-remote-runtime', 'profiles.json')
+  return pathApi.join(env.XDG_CONFIG_HOME || pathApi.join(os.homedir(), '.config'), 'dsh-remote-runtime', 'profiles.json')
 }
 
 /** Atomic, cross-process profile and workspace storage. */
