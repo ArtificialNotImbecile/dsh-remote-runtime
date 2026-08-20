@@ -1,0 +1,54 @@
+name: Build managed runtime
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - runtime-v*
+
+permissions:
+  contents: write
+
+jobs:
+  linux-x64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.19.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm run runtime:build
+      - name: Require a reproducible descriptor
+        run: git diff --exit-code -- runtime/manifest.json
+      - run: pnpm run runtime:verify
+      - run: pnpm run runtime:abi
+      - run: pnpm exec vitest run --config vitest.config.ts tests/runtime-artifact.spec.ts
+      - name: Require the runtime tag to match the descriptor
+        if: startsWith(github.ref, 'refs/tags/runtime-v')
+        run: |
+          expected="runtime-v$(node -p "JSON.parse(require('fs').readFileSync('runtime/manifest.json')).runtimeVersion")"
+          test "$GITHUB_REF_NAME" = "$expected"
+      - name: Verify archive hash matches descriptor
+        run: |
+          expected=$(node -p "JSON.parse(require('fs').readFileSync('runtime/manifest.json')).archive.sha256")
+          version=$(node -p "JSON.parse(require('fs').readFileSync('runtime/manifest.json')).runtimeVersion")
+          artifact="runtime/artifacts/dsh-remote-runtime-${version}-linux-x64-glibc.tar.gz"
+          actual=$(sha256sum "$artifact" | cut -d' ' -f1)
+          test "$expected" = "$actual"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dsh-remote-runtime-linux-x64
+          path: |
+            runtime/artifacts/dsh-remote-runtime-*-linux-x64-glibc.tar.gz
+            runtime/artifacts/SHA256SUMS.txt
+            runtime/manifest.json
+      - name: Attach tagged runtime asset
+        if: startsWith(github.ref, 'refs/tags/runtime-v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" runtime/artifacts/dsh-remote-runtime-*-linux-x64-glibc.tar.gz runtime/artifacts/SHA256SUMS.txt runtime/manifest.json --verify-tag --generate-notes

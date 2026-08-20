@@ -1,0 +1,16 @@
+{
+  "formatVersion": 1,
+  "runtimeVersion": "0.1.0",
+  "dshVersion": "0.1.0-rc.8",
+  "nodeVersion": "22.19.0",
+  "platform": "linux",
+  "arch": "x64",
+  "minimumGlibc": "2.28",
+  "node": "node/bin/node",
+  "launcher": "bin/dsh",
+  "archive": {
+    "url": "https://github.com/ArtificialNotImbecile/dsh-remote-runtime/releases/download/runtime-v0.1.0/dsh-remote-runtime-0.1.0-linux-x64-glibc.tar.gz",
+    "sha256": "e0409fd73d63c64ffc9e62de11438b71f7ab644251d56fc5de285bcddb695c02",
+    "bytes": 91523140
+  }
+}

@@ -1,0 +1,8 @@
+- insert:
+    - id: dsh-remote-runtime
+      name: '@artificialnotimbecile/dsh-remote-runtime'
+      config:
+        root: !!js dshHomePath('dsh-remote-runtime')
+        sshExecutable: ssh
+        commandTimeoutMs: 30000
+        maxTranscriptBytes: 67108864

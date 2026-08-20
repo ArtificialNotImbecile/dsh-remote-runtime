@@ -1,0 +1,9 @@
+node_modules/
+lib/
+coverage/
+test-results/
+runtime/artifacts/
+*.tgz
+*.tsbuildinfo
+.env
+.DS_Store

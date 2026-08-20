@@ -1,0 +1,44 @@
+name: Publish npm package
+
+on:
+  workflow_dispatch:
+    inputs:
+      dist_tag:
+        description: npm distribution tag
+        required: true
+        default: latest
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: npm install --global npm@^11.15.0
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm run check
+      - name: Download and verify the runtime referenced by this package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(node -p "require('./package.json').version")
+          mkdir -p runtime/artifacts
+          gh release download "runtime-v${version}" --pattern "dsh-remote-runtime-${version}-linux-x64-glibc.tar.gz" --dir runtime/artifacts
+          pnpm run runtime:verify
+          pnpm exec vitest run --config vitest.config.ts tests/runtime-artifact.spec.ts
+      - name: Publish through npm trusted publishing
+        run: npm publish --ignore-scripts --access public --tag "${{ inputs.dist_tag }}"

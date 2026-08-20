@@ -1,0 +1,23 @@
+allowBuilds:
+  esbuild: true
+  node-pty: true
+  koffi: true
+  '@deepseek-ai/dsh-subprocess-local': true
+  node-addon-require-builtin: false
+  protobufjs: false
+  '@google/genai': false
+
+autoInstallPeers: true
+strictPeerDependencies: true
+sideEffectsCache: false
+packageImportMethod: copy
+nodeLinker: hoisted
+
+supportedArchitectures:
+  os: [linux]
+  cpu: [x64]
+  libc: [glibc]
+
+# DSH rc.8 is deliberately pinned before the ordinary release-age window.
+minimumReleaseAgeExclude:
+  - '@deepseek-ai/*'

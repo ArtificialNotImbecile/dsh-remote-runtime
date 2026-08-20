@@ -1,0 +1,5 @@
+onlyBuiltDependencies: []
+
+# This plugin intentionally targets the freshly published, exact DSH rc.8 graph.
+minimumReleaseAgeExclude:
+  - '@deepseek-ai/*'
