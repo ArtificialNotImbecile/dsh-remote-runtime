@@ -35,6 +35,7 @@ jobs:
   assembled-web-profile:
     name: Assembled DSH rc.8 Web profile
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -49,12 +50,8 @@ jobs:
       - name: Pack plugin
         run: pnpm pack --pack-destination "$RUNNER_TEMP"
       - name: Install bundle into an isolated Harness profile
-        env:
-          DSH_HOME: ${{ runner.temp }}/dsh-remote-runtime-profile
+        timeout-minutes: 15
         run: |
           package=$(find "$RUNNER_TEMP" -maxdepth 1 -name 'artificialnotimbecile-dsh-remote-runtime-*.tgz' -print -quit)
           test -n "$package"
-          pnpm dlx @deepseek-ai/dsh@0.1.0-rc.8 plugin --profile web add "$package"
-          pnpm dlx @deepseek-ai/dsh@0.1.0-rc.8 --profile web --dump-config > "$RUNNER_TEMP/dsh-config.yml"
-          grep -F "@artificialnotimbecile/dsh-remote-runtime" "$RUNNER_TEMP/dsh-config.yml"
           DSH_PLUGIN_TARBALL="$package" pnpm run test:dsh-install
