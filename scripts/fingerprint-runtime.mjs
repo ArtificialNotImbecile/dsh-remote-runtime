@@ -69,13 +69,108 @@ async function sha256File(path) {
 async function gunzipFingerprint(path) {
   const hash = createHash('sha256')
   const gunzip = createGunzip()
+  const headers = tarHeaderCollector()
   createReadStream(path).pipe(gunzip)
   let bytes = 0
   for await (const chunk of gunzip) {
     hash.update(chunk)
     bytes += chunk.length
+    headers.feed(chunk)
   }
-  return { bytes, sha256: hash.digest('hex') }
+  return { bytes, sha256: hash.digest('hex'), ...headers.finish() }
+}
+
+function tarHeaderCollector() {
+  let pending = Buffer.alloc(0)
+  let skipBytes = 0
+  let finished = false
+  const members = []
+
+  return {
+    feed(chunk) {
+      let offset = 0
+      while (offset < chunk.length && !finished) {
+        if (skipBytes > 0) {
+          const skipped = Math.min(skipBytes, chunk.length - offset)
+          skipBytes -= skipped
+          offset += skipped
+          continue
+        }
+        const needed = 512 - pending.length
+        const taken = Math.min(needed, chunk.length - offset)
+        pending = pending.length === 0
+          ? Buffer.from(chunk.subarray(offset, offset + taken))
+          : Buffer.concat([pending, chunk.subarray(offset, offset + taken)])
+        offset += taken
+        if (pending.length !== 512) continue
+        if (pending.every(byte => byte === 0)) {
+          finished = true
+          pending = Buffer.alloc(0)
+          continue
+        }
+        const member = parseTarHeader(pending)
+        members.push(member)
+        skipBytes = Math.ceil(member.size / 512) * 512
+        pending = Buffer.alloc(0)
+      }
+    },
+    finish() {
+      if (!finished || pending.length !== 0 || skipBytes !== 0) {
+        throw new Error('runtime archive ended with an incomplete USTAR member')
+      }
+      const canonical = [...members].sort((left, right) => Buffer.compare(
+        Buffer.from(left.path, 'utf8'),
+        Buffer.from(right.path, 'utf8'),
+      ))
+      return {
+        members: members.length,
+        orderedMembersSha256: sha256Json(members),
+        canonicalMembersSha256: sha256Json(canonical),
+        modes: histogram(members.map(member => member.mode)),
+        types: histogram(members.map(member => member.type)),
+      }
+    },
+  }
+}
+
+function parseTarHeader(header) {
+  const name = tarString(header, 0, 100)
+  const prefix = tarString(header, 345, 155)
+  return {
+    path: prefix === '' ? name : `${prefix}/${name}`,
+    mode: tarString(header, 100, 8),
+    uid: tarString(header, 108, 8),
+    gid: tarString(header, 116, 8),
+    size: tarOctal(header, 124, 12),
+    mtime: tarString(header, 136, 12),
+    type: tarString(header, 156, 1) || '0',
+    link: tarString(header, 157, 100),
+    magic: tarString(header, 257, 6),
+    version: tarString(header, 263, 2),
+    uname: tarString(header, 265, 32),
+    gname: tarString(header, 297, 32),
+    devmajor: tarString(header, 329, 8),
+    devminor: tarString(header, 337, 8),
+  }
+}
+
+function tarString(header, offset, length) {
+  const field = header.subarray(offset, offset + length)
+  const nul = field.indexOf(0)
+  return field.subarray(0, nul === -1 ? field.length : nul).toString('utf8').trim()
+}
+
+function tarOctal(header, offset, length) {
+  const value = tarString(header, offset, length)
+  const parsed = Number.parseInt(value || '0', 8)
+  if (!Number.isSafeInteger(parsed) || parsed < 0) throw new Error('invalid USTAR size field')
+  return parsed
+}
+
+function histogram(values) {
+  const counts = new Map()
+  for (const value of values) counts.set(value, (counts.get(value) ?? 0) + 1)
+  return Object.fromEntries([...counts].sort(([left], [right]) => left.localeCompare(right)))
 }
 
 function sha256Json(value) {
