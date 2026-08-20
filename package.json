@@ -74,6 +74,7 @@
     "runtime:build": "node scripts/build-runtime.mjs",
     "runtime:verify": "node scripts/verify-runtime.mjs",
     "runtime:abi": "node scripts/check-runtime-abi.mjs",
+    "runtime:fingerprint": "node scripts/fingerprint-runtime.mjs",
     "test:dsh-install": "node scripts/test-dsh-install.mjs",
     "test:live": "node scripts/test-live.mjs",
     "prepare": "pnpm run build",

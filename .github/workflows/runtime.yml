@@ -23,6 +23,13 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - run: pnpm run runtime:build
+      - name: Print runtime and build-tool fingerprints
+        run: |
+          pnpm run runtime:fingerprint
+          tar --version | head -n 1
+          gzip --version | head -n 1
+          locale | sort
+          umask
       - name: Preserve the rebuilt runtime for reproducibility diagnostics
         uses: actions/upload-artifact@v4
         with:
