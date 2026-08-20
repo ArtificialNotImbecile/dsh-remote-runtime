@@ -10,7 +10,7 @@
   "launcher": "bin/dsh",
   "archive": {
     "url": "https://github.com/ArtificialNotImbecile/dsh-remote-runtime/releases/download/runtime-v0.1.0/dsh-remote-runtime-0.1.0-linux-x64-glibc.tar.gz",
-    "sha256": "ddf423a7768ed03d5367a41141a34c15a5d289c69cde89478f5ab93563a93381",
-    "bytes": 92463086
+    "sha256": "20e0d2185e7d49aacd9dd5b62fde9ee8b60c765b493f5641d65c8713a4f38e65",
+    "bytes": 92463162
   }
 }

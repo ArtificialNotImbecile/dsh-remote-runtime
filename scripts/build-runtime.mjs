@@ -58,7 +58,7 @@ package_json="$3"
 dependency_lock="$4"
 workspace_config="$5"
 finalizer="$6"
-compressor="$7"
+archiver="$7"
 artifact="$8"
 metadata="$9"
 artifact_temporary="${'${artifact}'}.build-$$"
@@ -111,20 +111,17 @@ chmod 755 "$work/stage/bin/dsh" "$work/stage/node/bin/node"
 find "$work/stage" -depth -type d -empty -delete
 "$work/builder/bin/node" "$work/stage/app/node_modules/@deepseek-ai/dsh/lib/bin.js" --version >/dev/null
 "$work/builder/bin/node" "$finalizer" "$work/stage" "$metadata"
-tar_file="$work/runtime.tar"
-tar --format=ustar --sort=name --mtime='UTC 1970-01-01' --owner=0 --group=0 --numeric-owner \\
-  -cf "$tar_file" -C "$work/stage" manifest.json node app bin
-"$work/builder/bin/node" "$compressor" "$tar_file" "$artifact_temporary"
+"$work/builder/bin/node" "$archiver" "$work/stage" "$artifact_temporary"
 mv -f -- "$artifact_temporary" "$artifact"
 `
 await writeFile(shellScript, script, { mode: 0o700 })
 try {
   if (process.platform === 'linux') {
     run('sh', [shellScript, nodeArchive, builderNodeArchive, join(root, 'runtime', 'package.json'), lockPath, workspacePath,
-      join(root, 'scripts', 'finalize-runtime.mjs'), join(root, 'scripts', 'compress-runtime.mjs'), artifact, metadata])
+      join(root, 'scripts', 'finalize-runtime.mjs'), join(root, 'scripts', 'archive-runtime.mjs'), artifact, metadata])
   } else if (process.platform === 'win32') {
     const paths = [shellScript, nodeArchive, builderNodeArchive, join(root, 'runtime', 'package.json'), lockPath, workspacePath,
-      join(root, 'scripts', 'finalize-runtime.mjs'), join(root, 'scripts', 'compress-runtime.mjs'), artifact]
+      join(root, 'scripts', 'finalize-runtime.mjs'), join(root, 'scripts', 'archive-runtime.mjs'), artifact]
     const converted = paths.map(toWslPath)
     run('wsl.exe', ['--exec', 'env',
       'HOME=/tmp',
