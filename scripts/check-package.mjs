@@ -12,6 +12,7 @@ if (manifest.name !== '@artificialnotimbecile/dsh-remote-runtime') {
 if (manifest.version !== '0.1.0') throw new Error('unexpected initial version')
 if (manifest.dsh?.bundle?.patch !== './cordis.patch.yml') throw new Error('missing DSH bundle patch')
 if (manifest.dsh?.client?.platform !== 'web') throw new Error('missing DSH Web client declaration')
+if (manifest.bin?.['dsh-remote'] !== 'lib/cli.js') throw new Error('published CLI bin path is not npm-normalized')
 if (!manifest.files.includes('scripts/*.mjs')) throw new Error('published package scripts are missing from files')
 if (!manifest.files.includes('docs/assets/readme/*')) throw new Error('README product assets are missing from files')
 

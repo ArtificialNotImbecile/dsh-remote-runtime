@@ -6,7 +6,7 @@
   "main": "./lib/index.js",
   "types": "./lib/types/index.d.ts",
   "bin": {
-    "dsh-remote": "./lib/cli.js"
+    "dsh-remote": "lib/cli.js"
   },
   "exports": {
     ".": {
