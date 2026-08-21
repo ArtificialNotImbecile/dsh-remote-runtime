@@ -1,6 +1,6 @@
 {
   "name": "@artificialnotimbecile/dsh-remote-runtime",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Managed, isolated DeepSeek Harness runtimes over OpenSSH with a native Web control surface.",
   "type": "module",
   "main": "./lib/index.js",

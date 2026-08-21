@@ -57,7 +57,7 @@ corepack pnpm run check
 corepack pnpm pack --pack-destination test-results
 
 npx.cmd --yes @deepseek-ai/dsh@0.1.0-rc.8 plugin --profile web add `
-  .\test-results\artificialnotimbecile-dsh-remote-runtime-0.1.1.tgz
+  .\test-results\artificialnotimbecile-dsh-remote-runtime-0.1.2.tgz
 ```
 
 </details>
