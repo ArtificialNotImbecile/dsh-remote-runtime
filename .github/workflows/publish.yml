@@ -35,9 +35,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          version=$(node -p "require('./package.json').version")
+          runtime_version=$(node -p "JSON.parse(require('fs').readFileSync('runtime/manifest.json')).runtimeVersion")
           mkdir -p runtime/artifacts
-          gh release download "runtime-v${version}" --pattern "dsh-remote-runtime-${version}-linux-x64-glibc.tar.gz" --dir runtime/artifacts
+          gh release download "runtime-v${runtime_version}" --pattern "dsh-remote-runtime-${runtime_version}-linux-x64-glibc.tar.gz" --dir runtime/artifacts
           pnpm run runtime:verify
           pnpm exec vitest run --config vitest.config.ts tests/runtime-artifact.spec.ts
       - name: Publish through npm trusted publishing

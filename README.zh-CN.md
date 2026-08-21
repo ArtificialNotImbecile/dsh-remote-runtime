@@ -79,9 +79,21 @@ GIF 中的链路是真实的：连接 → 校验固定运行时 → 打开 SSH �
 
 DeepSeek Harness 仍处于预发布阶段。只有当精确 peer 版本、Typert 生成合同、组装 profile smoke 和真实验收一起迁移并通过后，插件才会声明支持后续 DSH 版本。
 
-## 从本地代码安装
+## 安装
 
-npm 包暂不发布。请先构建，再把精确 tarball 装入 Web profile：
+把公开 npm 包安装到精确支持的 DSH Web profile：
+
+```powershell
+npx.cmd --yes @deepseek-ai/dsh@0.1.0-rc.8 plugin --profile web add `
+  @artificialnotimbecile/dsh-remote-runtime@latest
+npx.cmd --yes @deepseek-ai/dsh@0.1.0-rc.8 web
+```
+
+安装、更新或移除 bundle 后，请重启已经运行的 Web profile。插件管理器只修改所选 `DSH_HOME` profile，不会 patch DeepSeek Harness checkout。
+
+### 从本地代码安装
+
+源码验证或开发时，请先构建，再把精确 tarball 装入 Web profile：
 
 ```powershell
 corepack pnpm install --frozen-lockfile --ignore-scripts
@@ -89,11 +101,9 @@ corepack pnpm run check
 corepack pnpm pack --pack-destination test-results
 
 npx.cmd --yes @deepseek-ai/dsh@0.1.0-rc.8 plugin --profile web add `
-  .\test-results\artificialnotimbecile-dsh-remote-runtime-0.1.0.tgz
+  .\test-results\artificialnotimbecile-dsh-remote-runtime-0.1.1.tgz
 npx.cmd --yes @deepseek-ai/dsh@0.1.0-rc.8 web
 ```
-
-安装、更新或移除 bundle 后，请重启已经运行的 Web profile。插件管理器只修改所选 `DSH_HOME` profile，不会 patch DeepSeek Harness checkout。
 
 开发时也可以安装绝对路径：
 

@@ -5,11 +5,12 @@ import { fileURLToPath } from 'node:url'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
 const manifest = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
+const expectedRuntimeVersion = '0.1.0'
 
 if (manifest.name !== '@artificialnotimbecile/dsh-remote-runtime') {
   throw new Error('unexpected package name')
 }
-if (manifest.version !== '0.1.0') throw new Error('unexpected initial version')
+if (manifest.version !== '0.1.1') throw new Error('unexpected package version')
 if (manifest.dsh?.bundle?.patch !== './cordis.patch.yml') throw new Error('missing DSH bundle patch')
 if (manifest.dsh?.client?.platform !== 'web') throw new Error('missing DSH Web client declaration')
 if (manifest.bin?.['dsh-remote'] !== 'lib/cli.js') throw new Error('published CLI bin path is not npm-normalized')
@@ -73,7 +74,7 @@ if (!remoteClient.includes('dshRemoteRuntime_installRuntime_') || remoteClient.i
 const runtime = JSON.parse(await readFile(join(root, 'runtime/manifest.json'), 'utf8'))
 if (
   runtime.formatVersion !== 1
-  || runtime.runtimeVersion !== manifest.version
+  || runtime.runtimeVersion !== expectedRuntimeVersion
   || runtime.dshVersion !== '0.1.0-rc.8'
   || runtime.nodeVersion !== '22.19.0'
   || runtime.platform !== 'linux'
@@ -82,7 +83,7 @@ if (
   || runtime.node !== 'node/bin/node'
   || runtime.launcher !== 'bin/dsh'
   || typeof runtime.archive?.url !== 'string'
-  || runtime.archive.url !== `https://github.com/ArtificialNotImbecile/dsh-remote-runtime/releases/download/runtime-v${manifest.version}/dsh-remote-runtime-${manifest.version}-linux-x64-glibc.tar.gz`
+  || runtime.archive.url !== `https://github.com/ArtificialNotImbecile/dsh-remote-runtime/releases/download/runtime-v${expectedRuntimeVersion}/dsh-remote-runtime-${expectedRuntimeVersion}-linux-x64-glibc.tar.gz`
   || !/^[a-f0-9]{64}$/u.test(runtime.archive.sha256)
   || !Number.isSafeInteger(runtime.archive.bytes)
   || runtime.archive.bytes < 1
