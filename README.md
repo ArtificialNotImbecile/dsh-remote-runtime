@@ -79,9 +79,21 @@ This first release deliberately pins the current developer-preview boundary:
 
 DeepSeek Harness is pre-release software. A later DSH version is unsupported until this plugin's exact peer versions, generated Typert contract, assembled-profile smoke, and live acceptance have all moved together.
 
-## Install from this checkout
+## Install
 
-The npm package is intentionally not published yet. Build and install the exact local tarball:
+Install the public npm package into the exact supported DSH Web profile:
+
+```powershell
+npx.cmd --yes @deepseek-ai/dsh@0.1.0-rc.8 plugin --profile web add `
+  @artificialnotimbecile/dsh-remote-runtime@latest
+npx.cmd --yes @deepseek-ai/dsh@0.1.0-rc.8 web
+```
+
+Restart an already-running Web profile after adding, updating, or removing the bundle. The plugin manager changes only the selected profile under `DSH_HOME`; it does not patch a DeepSeek Harness checkout.
+
+### Install from a checkout
+
+For source verification or development, build and install the exact local tarball:
 
 ```powershell
 corepack pnpm install --frozen-lockfile --ignore-scripts
@@ -89,11 +101,9 @@ corepack pnpm run check
 corepack pnpm pack --pack-destination test-results
 
 npx.cmd --yes @deepseek-ai/dsh@0.1.0-rc.8 plugin --profile web add `
-  .\test-results\artificialnotimbecile-dsh-remote-runtime-0.1.0.tgz
+  .\test-results\artificialnotimbecile-dsh-remote-runtime-0.1.1.tgz
 npx.cmd --yes @deepseek-ai/dsh@0.1.0-rc.8 web
 ```
-
-Restart an already-running Web profile after adding, updating, or removing the bundle. The plugin manager changes only the selected profile under `DSH_HOME`; it does not patch a DeepSeek Harness checkout.
 
 For source iteration, an absolute checkout path also works:
 
