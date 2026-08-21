@@ -10,7 +10,7 @@ const expectedRuntimeVersion = '0.1.0'
 if (manifest.name !== '@artificialnotimbecile/dsh-remote-runtime') {
   throw new Error('unexpected package name')
 }
-if (manifest.version !== '0.1.1') throw new Error('unexpected package version')
+if (manifest.version !== '0.1.2') throw new Error('unexpected package version')
 if (manifest.dsh?.bundle?.patch !== './cordis.patch.yml') throw new Error('missing DSH bundle patch')
 if (manifest.dsh?.client?.platform !== 'web') throw new Error('missing DSH Web client declaration')
 if (manifest.bin?.['dsh-remote'] !== 'lib/cli.js') throw new Error('published CLI bin path is not npm-normalized')
